@@ -2,6 +2,7 @@
 import telegram
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
+from telegram.ext import Filters
 import subprocess
 
 #when /proves
@@ -42,6 +43,11 @@ def sleep(bot, update):
 	subprocess.call('./scripts/sleep.sh', shell=True) #shutdown -P 0 through the script
 
 
+#when /start
+def start(bot, update):
+	bot.send_message(chat_id=update.message.chat_id, text="I'm active, now you can start asking")
+
+
 #when /wakeup
 def wakeup(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="Clock is ringing...")
@@ -50,6 +56,9 @@ def wakeup(bot, update):
 
 #initialization of the bot through the token pasted on the file
 TOKEN = open('./resources/token.txt').read().strip()
+#load all the permited ids in the file userIds to a list
+with open('./resources/userIds.txt') as file:
+	permittedIds = [int(x) for x in file.read().split()]
 
 
 updater = Updater(token=TOKEN)
@@ -57,12 +66,13 @@ dispatcher = updater.dispatcher
 
 
 #assign each command to its function
-dispatcher.add_handler(CommandHandler('awake', awake))
-dispatcher.add_handler(CommandHandler('getup', getup))
-dispatcher.add_handler(CommandHandler('help', help))
-dispatcher.add_handler(CommandHandler('sleep', sleep))
-dispatcher.add_handler(CommandHandler('wakeup', wakeup))
-dispatcher.add_handler(CommandHandler('proves', proves))
+dispatcher.add_handler(CommandHandler('awake', awake, Filters.user(user_id=permittedIds)))
+dispatcher.add_handler(CommandHandler('getup', getup, Filters.user(user_id=permittedIds)))
+dispatcher.add_handler(CommandHandler('help', help, Filters.user(user_id=permittedIds)))
+dispatcher.add_handler(CommandHandler('sleep', sleep, Filters.user(user_id=permittedIds)))
+dispatcher.add_handler(CommandHandler('start', start, Filters.user(user_id=permittedIds)))
+dispatcher.add_handler(CommandHandler('wakeup', wakeup, Filters.user(user_id=permittedIds)))
+dispatcher.add_handler(CommandHandler('proves', proves, Filters.user(user_id=permittedIds)))
 
 
 #start the bot
