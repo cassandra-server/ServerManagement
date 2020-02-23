@@ -1,26 +1,34 @@
-#import of libraries
+#import the libraries
 import telegram
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 import subprocess
 
-def awake(bot, update): #when /awake
-	bot.send_message(chat_id=update.message.chat_id, text="Checking")
-	subprocess.call('./scripts/checkifawake.sh', shell=True) #ping using the script
-	status = open('./resources/status.txt').read().strip() #read the output of the comprobation
+#when /proves
+def proves(bot, update):
+	message = bot.send_message(chat_id=update.message.chat_id, text="Put your doubious stuff here")
+
+
+#when /awake
+def awake(bot, update):
+	message = bot.send_message(chat_id=update.message.chat_id, text="Checking...")
+	subprocess.call('./scripts/checkifawake.sh', shell=True) #check the awakeness of the server through the script
+	status = open('./resources/status.txt').read().strip() #read the output of the script
 	if status == 'awake':
-		bot.send_message(chat_id=update.message.chat_id, text="Hello, I'm awake :)")
+		bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Hello, I'm awake :)") #reply to the checking message
 	if status == 'asleep':
-		bot.send_message(chat_id=update.message.chat_id, text="I'm sleeping :(")
+		bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="I'm sleeping :(") #reply to the checking message
 
 
-def getup(bot, update): #when /getup
-	bot.send_message(chat_id=update.message.chat_id, text="Time to get up...")
-	subprocess.call('./scripts/getup.sh', shell=True) #wakeonlan + wait using the script
-	bot.send_message(chat_id=update.message.chat_id, text="Ready to rock!")
+#when /getup
+def getup(bot, update):
+	message = bot.send_message(chat_id=update.message.chat_id, text="Time to get up... (Be a little patient)")
+	subprocess.call('./scripts/getup.sh', shell=True) #wakeonlan + ping until success through the script
+	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Ready to rock!") #reply to the 'time to get up' message
 
 
-def help(bot, update): #when /help
+#when /help
+def help(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="/awake - displays the current status of the server \n"
 	+ "/getup - turns the server on and waits until it's active\n"
 	+ "/help - displays this same menu\n"
@@ -28,30 +36,34 @@ def help(bot, update): #when /help
 	+ "/wakeup - turns the server on\n")
 
 
-def sleep(bot, update): #when /sleep
+#when /sleep
+def sleep(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="Time to go to bed...")
-	subprocess.call('./scripts/sleep.sh', shell=True) #shutdown using the script
+	subprocess.call('./scripts/sleep.sh', shell=True) #shutdown -P 0 through the script
 
 
-def wakeup(bot, update): #when /wakeup
+#when /wakeup
+def wakeup(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="Clock is ringing...")
-	subprocess.call('./scripts/wakeup.sh', shell=True) #wakeonlan using the script
+	subprocess.call('./scripts/wakeup.sh', shell=True) #wakeonlan through the script
 
 
-TOKEN = open('./resources/token.txt').read().strip() #initialize with the token in ./resources/token.txt
+#initialization of the bot through the token pasted on the file
+TOKEN = open('./resources/token.txt').read().strip()
 
 
 updater = Updater(token=TOKEN)
 dispatcher = updater.dispatcher
 
 
-#association of the commands with the functions
+#assign each command to its function
 dispatcher.add_handler(CommandHandler('awake', awake))
 dispatcher.add_handler(CommandHandler('getup', getup))
 dispatcher.add_handler(CommandHandler('help', help))
 dispatcher.add_handler(CommandHandler('sleep', sleep))
 dispatcher.add_handler(CommandHandler('wakeup', wakeup))
+dispatcher.add_handler(CommandHandler('proves', proves))
 
 
-#initialization of the bot
+#start the bot
 updater.start_polling()
