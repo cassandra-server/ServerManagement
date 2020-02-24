@@ -23,7 +23,7 @@ def awake(bot, update):
 
 #when /getup
 def getup(bot, update):
-	message = bot.send_message(chat_id=update.message.chat_id, text="Time to get up... (Be a little patient)")
+	message = bot.send_message(chat_id=update.message.chat_id, text="Can't I have 5 more mins... (Be a little patient)")
 	subprocess.call('./scripts/getup.sh', shell=True) #wakeonlan + ping until success through the script
 	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Ready to rock!") #reply to the 'time to get up' message
 
@@ -34,18 +34,25 @@ def help(bot, update):
 	+ "/getup - turns the server on and waits until it's active\n"
 	+ "/help - displays this same menu\n"
 	+ "/sleep - turns the server off\n"
+	+ "/start - turns the bot on\n"
 	+ "/wakeup - turns the server on\n")
 
 
 #when /sleep
 def sleep(bot, update):
-	bot.send_message(chat_id=update.message.chat_id, text="Time to go to bed...")
+	bot.send_message(chat_id=update.message.chat_id, text="Putting on my pajamas...")
 	subprocess.call('./scripts/sleep.sh', shell=True) #shutdown -P 0 through the script
 
 
 #when /start
 def start(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="I'm active, now you can start asking")
+
+
+#when /umountall
+def umountall
+	bot.send_message(chat_id=update.message.chat_id, text="Looking for some mounted partitions (this may take a while)"
+	subprocess.call('./scripts/umount.sh', shell=True) #kill desired process remotely
 
 
 #when /wakeup
@@ -71,6 +78,7 @@ dispatcher.add_handler(CommandHandler('getup', getup, Filters.user(user_id=permi
 dispatcher.add_handler(CommandHandler('help', help, Filters.user(user_id=permittedIds)))
 dispatcher.add_handler(CommandHandler('sleep', sleep, Filters.user(user_id=permittedIds)))
 dispatcher.add_handler(CommandHandler('start', start, Filters.user(user_id=permittedIds)))
+dispatcher.add_handler(CommandHandler('umountall', umountall, Filter.user(user_id=permittedIds)))
 dispatcher.add_handler(CommandHandler('wakeup', wakeup, Filters.user(user_id=permittedIds)))
 dispatcher.add_handler(CommandHandler('proves', proves, Filters.user(user_id=permittedIds)))
 
