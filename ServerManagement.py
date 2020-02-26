@@ -50,10 +50,19 @@ def start(bot, update):
 
 
 #when /umountall
-def umountall
-	bot.send_message(chat_id=update.message.chat_id, text="Looking for some mounted partitions (this may take a while)"
+def umountall(bot, update):
+	bot.send_message(chat_id=update.message.chat_id, text="Looking for some mounted partitions (this may take a while)")
 	subprocess.call('./scripts/umount.sh', shell=True) #kill desired process remotely
-
+	pidsunf = open('./resources/mountedServers.txt').readline()
+	pids = pidsunf.split()
+	if pids[0] != 'Connection':
+		bot.send_message(chat_id=update.message.chat_id, text="The partition was found")
+		file = open('./resources/mountedServers.txt')
+		for pid in pids:
+			file.write(pid)
+		file.close()
+	if pids[0] == 'Connection':
+		bot.send_message(chat_id=update.message.chat_id, text="There wasn't any remote partition")
 
 #when /wakeup
 def wakeup(bot, update):
@@ -78,7 +87,7 @@ dispatcher.add_handler(CommandHandler('getup', getup, Filters.user(user_id=permi
 dispatcher.add_handler(CommandHandler('help', help, Filters.user(user_id=permittedIds)))
 dispatcher.add_handler(CommandHandler('sleep', sleep, Filters.user(user_id=permittedIds)))
 dispatcher.add_handler(CommandHandler('start', start, Filters.user(user_id=permittedIds)))
-dispatcher.add_handler(CommandHandler('umountall', umountall, Filter.user(user_id=permittedIds)))
+dispatcher.add_handler(CommandHandler('umountall', umountall, Filters.user(user_id=permittedIds)))
 dispatcher.add_handler(CommandHandler('wakeup', wakeup, Filters.user(user_id=permittedIds)))
 dispatcher.add_handler(CommandHandler('proves', proves, Filters.user(user_id=permittedIds)))
 
