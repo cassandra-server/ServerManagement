@@ -1,1 +1,1 @@
-put_your_token_here
+write your token here
