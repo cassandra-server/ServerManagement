@@ -1,1 +1,1 @@
-wakeonlan put_your_mac_here #wakeonlan (put your own mac adress)
+wakeonlan mac_address #wakeonlan (put your own mac adress)
