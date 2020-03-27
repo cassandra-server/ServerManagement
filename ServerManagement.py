@@ -5,8 +5,8 @@ from telegram.ext import CommandHandler
 from telegram.ext import Filters
 import subprocess
 
-abs_path_scripts='absolute_path/Files/Scripts/'
-abs_path_resources='absolute_path/Files/Resources/'
+abs_path_scripts='/home_path/.ServerManagement/Files/Scripts/'
+abs_path_resources='/home_path/.ServerManagement/Files/Resources/'
 
 
 #when /proves
