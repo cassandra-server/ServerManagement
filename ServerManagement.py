@@ -5,8 +5,8 @@ from telegram.ext import CommandHandler
 from telegram.ext import Filters
 import subprocess
 
-abs_path_scripts='/home_path/.ServerManagement/Files/Scripts/'
-abs_path_resources='/home_path/.ServerManagement/Files/Resources/'
+abs_path_scripts='path_to_home/.ServerManagement/Files/Scripts/'
+abs_path_resources='path_to_home/.ServerManagement/Files/Resources/'
 
 
 #when /proves
@@ -80,12 +80,26 @@ def getup(bot, update):
 
 #when /help
 def help(bot, update):
-	bot.send_message(chat_id=update.message.chat_id, text="/awake - displays the current status of the server \n"
-	+ "/getup - turns the server on and waits until it's active\n"
-	+ "/help - displays this same menu\n"
-	+ "/sleep - turns the server off\n"
-	+ "/start - turns the bot on\n"
-	+ "/wakeup - turns the server on\n")
+	bot.send_message(chat_id=update.message.chat_id, text="/awake - Check the status of the server\n"+
+							      "/help - Print this message of help\n"+
+							      "/list (folder)[filters] - List data with filters\n"+
+							      "/mount - Access the folder containing the autofs\n"+
+							      "/start - Initializes the bot\n")
+
+
+def superhelp(bot, update):
+	bot.send_message(chat_id=update.message.chat_id, text="/awake - Check the status of the server\n"+
+							      "/download (magnetlink) - Downloads the torrent from the magnetlink\n"+
+							      "/getup - Turns the server on and waits for a response\n"+
+							      "/help - Displays the basic help\n"+
+							      "/list (folder)[filters] - List data with filters\n"+
+							      "/migrate - Move the files from downloads to the films folder\n"+
+							      "/mount - Access the folder containing the autofs\n"+
+							      "/reboot - Restarts the server\n"+
+							      "/sleep - Turns off the server\n"+
+							      "/start - Initializes the bot\n"+
+							      "/superhelp - Displays this message of help\n"+
+							      "/wakeup - Just turns the server on")
 
 
 def migrate(bot, update):
@@ -147,6 +161,7 @@ dispatcher.add_handler(CommandHandler('list', list, Filters.user(user_id=users),
 dispatcher.add_handler(CommandHandler('migrate', migrate, Filters.user(user_id=superusers)))
 dispatcher.add_handler(CommandHandler('download', download, Filters.user(user_id=superusers), pass_args=True))
 dispatcher.add_handler(CommandHandler('reboot', reboot, Filters.user(user_id=superusers)))
+dispatcher.add_handler(CommandHandler('superhelp', superhelp, Filters.user(user_id=superusers)))
 
 #start the bot
 updater.start_polling()
