@@ -1,1 +1,1 @@
-ssh -t username@ip_address "ls -1 path_to_films" > absolute_path/Files/Resources/Outputs/list.txt
+ssh -t `cat $HOME/.ServerManagement/Files/Resources/Authentication/SSH/serveruser.txt`@`cat $HOME/.ServerManagement/Files/Resources/Authentication/SSH/serverip.txt` "ls -1 ~/Films/" > $HOME/.ServerManagement/Files/Resources/Outputs/list.txt

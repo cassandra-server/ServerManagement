@@ -1,1 +1,1 @@
-wakeonlan mac_address #wakeonlan (put your own mac adress)
+wakeonlan `cat $HOME/.ServerManagement/Files/Resources/Authentication/SSH/servermac.txt` #wakeonlan (put your own mac adress)
