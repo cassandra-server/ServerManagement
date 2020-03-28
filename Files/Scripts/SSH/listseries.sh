@@ -1,1 +1,0 @@
-ssh -t `cat $HOME/.ServerManagement/Files/Resources/Authentication/SSH/serveruser.txt`@`cat $HOME/.ServerManagement/Files/Resources/Authentication/SSH/serverip.txt` "ls -1 ~/Series/" > $HOME/.ServerManagement/Files/Resources/Outputs/list.txt 
