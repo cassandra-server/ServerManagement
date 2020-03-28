@@ -114,7 +114,7 @@ def help(bot, update):
 #when /superhelp
 def superhelp(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="/awake - Check the status of the server\n"+
-							      "/cases (On/Off) - Modify the case sensitivity of the commands\n"+
+							      "/cases (On/Off/Status) - Modify the case sensitivity of the commands\n"+
 							      "/download (magnetlink) - Downloads the torrent from the magnetlink\n"+
 							      "/getup - Turns the server on and waits for a response\n"+
 							      "/help - Displays the basic help\n"+
