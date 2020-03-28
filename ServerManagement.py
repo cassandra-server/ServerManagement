@@ -5,9 +5,15 @@ from telegram.ext import CommandHandler
 from telegram.ext import Filters
 import subprocess
 
-abs_path_scripts='path_to_home/miguelsanchezp/.ServerManagement/Files/Scripts/'
+abs_path_scripts='path_to_home/.ServerManagement/Files/Scripts/'
 abs_path_resources='path_to_home/.ServerManagement/Files/Resources/'
 case_sensitive=False
+
+#when /proves
+def proves(bot, update, args):
+	saying = " ".join(args)
+	message = bot.send_message(chat_id=update.message.chat_id, text=saying)
+	#message = bot.send_message(chat_id=update.message.chat_id, text="Put your doubious stuff here")
 
 
 #when /awake
@@ -21,6 +27,7 @@ def awake(bot, update):
 		bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="I'm sleeping :(") #reply to the checking message
 
 
+#when /cases
 def cases(bot, update, args):
 	global case_sensitive
 	if args[0].lower() == 'on':
@@ -29,10 +36,16 @@ def cases(bot, update, args):
 	elif args[0].lower() == 'off':
 		case_sensitive = False
 		bot.send_message(chat_id=update.message.chat_id, text="Arguments are no longer case sensitive")
+	elif args[0].lower() == 'status':
+		if case_sensitive == False:
+			bot.send_message(chat_id=update.message.chat_id, text="The sensitivity is off")
+		if case_sensitive == True:
+			bot.send_message(chat_id=update.message.chat_id, text="The sensitivity is on")
 	else:
-		bot.send_message(chat_id=update.message.chat_id, text="Please write On/Off")
+		bot.send_message(chat_id=update.message.chat_id, text="Please write On/Off/Status")
 
 
+#when /download
 def download(bot, update, args):
 	file = open(abs_path_resources+'Args/magnetlink.txt', "w+")
 	file.write(args[0])
@@ -91,14 +104,17 @@ def getup(bot, update):
 #when /help
 def help(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="/awake - Check the status of the server\n"+
+							      "/cases (On/Off/Status) - Modify the case sensitivity of the commands\n"+
 							      "/help - Print this message of help\n"+
 							      "/list (folder)[filters] - List data with filters\n"+
 							      "/mount - Access the folder containing the autofs\n"+
 							      "/start - Initializes the bot\n")
 
 
+#when /superhelp
 def superhelp(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="/awake - Check the status of the server\n"+
+							      "/cases (On/Off) - Modify the case sensitivity of the commands\n"+
 							      "/download (magnetlink) - Downloads the torrent from the magnetlink\n"+
 							      "/getup - Turns the server on and waits for a response\n"+
 							      "/help - Displays the basic help\n"+
@@ -112,17 +128,20 @@ def superhelp(bot, update):
 							      "/wakeup - Just turns the server on")
 
 
+#when /migrate
 def migrate(bot, update):
 	message = bot.send_message(chat_id=update.message.chat_id, text="Heading towards Unformatted")
 	subprocess.call(abs_path_scripts+'SSH/migrate.sh', shell=True)
 	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Destination reached")
 
 
+#when /mount
 def mount(bot, update):
 	subprocess.call(abs_path_scripts+'Local/mount.sh', shell=True) #cd on the directory (only because there is the autofs)
 	bot.send_message(chat_id=update.message.chat_id, text="Like it was your home")
 
 
+#when /reboot
 def reboot(bot, update):
 	subprocess.call(abs_path_scripts+'StateModification/reboot.sh', shell=True)
 	bot.send_message(chat_id=update.message.chat_id, text="Gonna take a nap")
