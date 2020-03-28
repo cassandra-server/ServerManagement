@@ -5,15 +5,9 @@ from telegram.ext import CommandHandler
 from telegram.ext import Filters
 import subprocess
 
-abs_path_scripts='path_to_home/.ServerManagement/Files/Scripts/'
+abs_path_scripts='path_to_home/miguelsanchezp/.ServerManagement/Files/Scripts/'
 abs_path_resources='path_to_home/.ServerManagement/Files/Resources/'
-
-
-#when /proves
-def proves(bot, update, args):
-	saying = " ".join(args)
-	message = bot.send_message(chat_id=update.message.chat_id, text=saying)
-	#message = bot.send_message(chat_id=update.message.chat_id, text="Put your doubious stuff here")
+case_sensitive=False
 
 
 #when /awake
@@ -25,6 +19,18 @@ def awake(bot, update):
 		bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Hello, I'm awake :)") #reply to the checking message
 	if status == 'asleep':
 		bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="I'm sleeping :(") #reply to the checking message
+
+
+def cases(bot, update, args):
+	global case_sensitive
+	if args[0].lower() == 'on':
+		case_sensitive = True
+		bot.send_message(chat_id=update.message.chat_id, text="Arguments are now case sensitive")
+	elif args[0].lower() == 'off':
+		case_sensitive = False
+		bot.send_message(chat_id=update.message.chat_id, text="Arguments are no longer case sensitive")
+	else:
+		bot.send_message(chat_id=update.message.chat_id, text="Please write On/Off")
 
 
 def download(bot, update, args):
@@ -55,20 +61,24 @@ def filter(bot, update, args):
 
 #when /list
 def list(bot, update, args):
-	if args[0] == "films":
-		subprocess.call(abs_path_scripts+'SSH/listfilms.sh', shell=True)
-		if len(args) == 1:
-			list = open(abs_path_resources+'Outputs/list.txt').read().strip()
-			bot.send_message(chat_id=update.message.chat_id, text=list)
-		else:
-			filter(bot, update, args)
-	elif args[0] == "series":
-		subprocess.call(abs_path_scripts+'SSH/listseries.sh', shell=True)
-		if len(args) == 1:
-			list = open(abs_path_resources+'Outputs/list.txt').read().strip()
-			bot.send_message(chat_id=update.message.chat_id, text=list)
-		else:
-			filter(bot, update, args)
+	print(case_sensitive)
+	file = open(abs_path_resources+'Args/dir.txt', 'w+')
+	if case_sensitive:
+		file.write(args[0])
+	elif not case_sensitive:
+		args[0] == args[0].lower()
+		args_no_case = '*'
+		for i in args[0]:
+			args_no_case = args_no_case+'['+i+i.upper()+']'
+		args_no_case = args_no_case+'*'
+		file.write(args_no_case)
+	file.close()
+	subprocess.call(abs_path_scripts+'SSH/list.sh', shell=True)
+	if len(args) == 1:
+		list = open(abs_path_resources+'Outputs/list.txt').read().strip()
+		bot.send_message(chat_id=update.message.chat_id, text=list)
+	else:
+		filter(bot, update, args)
 
 
 #when /getup
@@ -162,6 +172,7 @@ dispatcher.add_handler(CommandHandler('migrate', migrate, Filters.user(user_id=s
 dispatcher.add_handler(CommandHandler('download', download, Filters.user(user_id=superusers), pass_args=True))
 dispatcher.add_handler(CommandHandler('reboot', reboot, Filters.user(user_id=superusers)))
 dispatcher.add_handler(CommandHandler('superhelp', superhelp, Filters.user(user_id=superusers)))
+dispatcher.add_handler(CommandHandler('cases', cases, Filters.user(user_id=users), pass_args=True))
 
 #start the bot
 updater.start_polling()
