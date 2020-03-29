@@ -73,8 +73,11 @@ def filter(bot, update, args):
 
 
 #when /list
-def list(bot, update, args):
-	print(case_sensitive)
+def list (bot, update, args):
+	ls(bot, update, args, False)
+
+
+def ls(bot, update, args, recursive):
 	file = open(abs_path_resources+'Args/dir.txt', 'w+')
 	if case_sensitive:
 		file.write(args[0])
@@ -86,9 +89,12 @@ def list(bot, update, args):
 		args_no_case = args_no_case+'*'
 		file.write(args_no_case)
 	file.close()
-	subprocess.call(abs_path_scripts+'SSH/list.sh', shell=True)
-	if len(args) == 1:
-		list = open(abs_path_resources+'Outputs/list.txt').read().strip()
+	if not recursive:
+		subprocess.call(abs_path_scripts+'SSH/list.sh', shell=True)
+	elif recursive:
+		subprocess.call(abs_path_scripts+'SSH/search.sh', shell=True)
+	if len(args)==1:
+		list = open(abs_path_resources+'Outputs/list.txt', 'r').read().strip()
 		bot.send_message(chat_id=update.message.chat_id, text=list)
 	else:
 		filter(bot, update, args)
@@ -147,6 +153,11 @@ def reboot(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="Gonna take a nap")
 
 
+#when /search
+def search(bot, update, args):
+	ls(bot, update, args, True)
+
+
 #when /sleep
 def sleep(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="Putting on my pajamas...")
@@ -192,6 +203,7 @@ dispatcher.add_handler(CommandHandler('download', download, Filters.user(user_id
 dispatcher.add_handler(CommandHandler('reboot', reboot, Filters.user(user_id=superusers)))
 dispatcher.add_handler(CommandHandler('superhelp', superhelp, Filters.user(user_id=superusers)))
 dispatcher.add_handler(CommandHandler('cases', cases, Filters.user(user_id=users), pass_args=True))
+dispatcher.add_handler(CommandHandler('search', search, Filters.user(user_id=users), pass_args=True))
 
 #start the bot
 updater.start_polling()
