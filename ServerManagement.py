@@ -77,6 +77,13 @@ def list (bot, update, args):
 	ls(bot, update, args, False)
 
 
+def split_string(string, length):
+	args = []
+	for k in range(0, len(string), 4096):
+		args.append(string[0+k:4096+k])
+	return args
+
+
 def ls(bot, update, args, recursive):
 	file = open(abs_path_resources+'Args/dir.txt', 'w+')
 	if case_sensitive:
@@ -95,7 +102,12 @@ def ls(bot, update, args, recursive):
 		subprocess.call(abs_path_scripts+'SSH/search.sh', shell=True)
 	if len(args)==1:
 		list = open(abs_path_resources+'Outputs/list.txt', 'r').read().strip()
-		bot.send_message(chat_id=update.message.chat_id, text=list)
+		if len(list) > 4096:
+			messages = split_string(list, 4096)
+			for message in messages:
+				bot.send_message(chat_id=update.message.chat_id, text=message)
+		else:
+			bot.send_message(chat_id=update.message.chat_id, text=list)
 	else:
 		filter(bot, update, args)
 
