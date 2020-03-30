@@ -77,7 +77,7 @@ def list (bot, update, args):
 	ls(bot, update, args, False)
 
 
-def split_string(string, length):
+def split_string(string):
 	args = []
 	for k in range(0, len(string), 4096):
 		args.append(string[0+k:4096+k])
@@ -103,7 +103,7 @@ def ls(bot, update, args, recursive):
 	if len(args)==1:
 		list = open(abs_path_resources+'Outputs/list.txt', 'r').read().strip()
 		if len(list) > 4096:
-			messages = split_string(list, 4096)
+			messages = split_string(list)
 			for message in messages:
 				bot.send_message(chat_id=update.message.chat_id, text=message)
 		else:
