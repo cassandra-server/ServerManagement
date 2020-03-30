@@ -63,8 +63,12 @@ def filter(bot, update, args):
 		keyword = " ".join(keyword)
 		list = open(abs_path_resources+'Outputs/list.txt')
 		for show in list:
-			if keyword.lower() in show.lower():
-				shows.append(show)
+			if case_sensitive:
+				if keyword in show:
+					shows.append(show)
+			if not case_sensitive:
+				if keyword.lower() in show.lower():
+					shows.append(show)
 		if len(shows) == 0:
 			bot.send_message(chat_id=update.message.chat_id, text="Nothing found :(")
 		else:
