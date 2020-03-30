@@ -96,7 +96,7 @@ def ls(bot, update, args, recursive):
 		args[0] == args[0].lower()
 		args_no_case = '*'
 		for i in args[0]:
-			args_no_case = args_no_case+'['+i+i.upper()+']'
+			args_no_case = args_no_case+'['+i.lower()+i.upper()+']'
 		args_no_case = args_no_case+'*'
 		file.write(args_no_case)
 	file.close()
