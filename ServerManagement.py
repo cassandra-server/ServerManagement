@@ -165,8 +165,9 @@ def mount(bot, update):
 
 #when /reboot
 def reboot(bot, update):
+	message = bot.send_message(chat_id=update.message.chat_id, text='Gonna take a nap')
 	subprocess.call(abs_path_scripts+'StateModification/reboot.sh', shell=True)
-	bot.send_message(chat_id=update.message.chat_id, text="Gonna take a nap")
+	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Just woken up")
 
 
 #when /search
