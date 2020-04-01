@@ -193,11 +193,11 @@ def wakeup(bot, update):
 
 
 #initialization of the bot through the token pasted on the file
-TOKEN = open(abs_path_resources+'Authentication/token.txt').read().strip()
+TOKEN = open(abs_path_resources+'Authentication/Functioning/token.txt').read().strip()
 #load all the permited ids in the file userIds to a list
-with open(abs_path_resources+'Authentication/userIds.txt') as file:
+with open(abs_path_resources+'Authentication/Functioning/userIds.txt') as file:
 	users = [int(x) for x in file.read().split()]
-with open(abs_path_resources+'Authentication/superuserIds.txt') as file:
+with open(abs_path_resources+'Authentication/Functioning/superuserIds.txt') as file:
 	superusers = [int(x) for x in file.read().split()]
 
 
