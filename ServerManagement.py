@@ -56,7 +56,7 @@ def download(bot, update, args):
 
 def filter(bot, update, args):
 	if len(args) > 1:
-		shows = []
+		shows = ""
 		keyword = []
 		for k in range(1,len(args)):
 			keyword.append(args[k])
@@ -65,15 +65,19 @@ def filter(bot, update, args):
 		for show in list:
 			if case_sensitive:
 				if keyword in show:
-					shows.append(show)
+#					shows.append(show)
+					shows = shows + show
 			if not case_sensitive:
 				if keyword.lower() in show.lower():
-					shows.append(show)
+#					shows.append(show)
+					shows = shows + show
 		if len(shows) == 0:
 			bot.send_message(chat_id=update.message.chat_id, text="Nothing found :(")
 		else:
-			shows="- " + "- ".join(shows)
-			bot.send_message(chat_id = update.message.chat_id, text=shows)
+			str=""
+			for show in shows:
+				str = str+show
+			bot.send_message(chat_id = update.message.chat_id, text=str)
 
 
 #when /list
@@ -150,6 +154,25 @@ def superhelp(bot, update):
 							      "/wakeup - Just turns the server on")
 
 
+def parse_machines():
+	file = open(abs_path_resources+'/Authentication/Machines/machines.txt', 'r')
+	machines = []
+	for line in file:
+		machines.append(line.split(" ")[0])
+	file.close()
+	print(machines)
+	return machines
+
+
+def machines(bot, update, args):
+	if len(args) == 0:
+		machines = parse_machines()
+		list = ""
+		for machine in machines:
+			list = list+machine+"\n"
+		bot.send_message(chat_id=update.message.chat_id, text=list)
+
+
 #when /migrate
 def migrate(bot, update):
 	message = bot.send_message(chat_id=update.message.chat_id, text="Heading towards Unformatted")
@@ -167,7 +190,7 @@ def mount(bot, update):
 def reboot(bot, update):
 	message = bot.send_message(chat_id=update.message.chat_id, text='Gonna take a nap')
 	subprocess.call(abs_path_scripts+'StateModification/reboot.sh', shell=True)
-	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Just woken up")
+	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Already woken up")
 
 
 #when /search
@@ -221,6 +244,7 @@ dispatcher.add_handler(CommandHandler('reboot', reboot, Filters.user(user_id=sup
 dispatcher.add_handler(CommandHandler('superhelp', superhelp, Filters.user(user_id=superusers)))
 dispatcher.add_handler(CommandHandler('cases', cases, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('search', search, Filters.user(user_id=users), pass_args=True))
+dispatcher.add_handler(CommandHandler('machines', machines, Filters.user(user_id=superusers), pass_args=True))
 
 #start the bot
 updater.start_polling()
