@@ -9,12 +9,6 @@ abs_path_scripts='path_to_home/.ServerManagement/Files/Scripts/'
 abs_path_resources='path_to_home/.ServerManagement/Files/Resources/'
 case_sensitive=False
 
-#when /proves
-def proves(bot, update, args):
-	saying = " ".join(args)
-	message = bot.send_message(chat_id=update.message.chat_id, text=saying)
-	#message = bot.send_message(chat_id=update.message.chat_id, text="Put your doubious stuff here")
-
 
 #when /awake
 def awake(bot, update):
@@ -66,11 +60,9 @@ def filter(bot, update, args):
 			if case_sensitive:
 				if keyword in show:
 					shows.append(show)
-#					shows = shows + show
 			if not case_sensitive:
 				if keyword.lower() in show.lower():
 					shows.append(show)
-#					shows = shows + show
 		if len(shows) == 0:
 			bot.send_message(chat_id=update.message.chat_id, text="Nothing found :(")
 		else:
@@ -160,7 +152,6 @@ def parse_machines():
 	for line in file:
 		machines.append(line.split(" ")[0])
 	file.close()
-#	print(machines)
 	return machines
 
 
@@ -264,7 +255,6 @@ dispatcher.add_handler(CommandHandler('help', help, Filters.user(user_id=users))
 dispatcher.add_handler(CommandHandler('sleep', sleep, Filters.user(user_id=superusers)))
 dispatcher.add_handler(CommandHandler('start', start, Filters.user(user_id=users)))
 dispatcher.add_handler(CommandHandler('wakeup', wakeup, Filters.user(user_id=superusers)))
-dispatcher.add_handler(CommandHandler('proves', proves, Filters.user(user_id=superusers), pass_args=True))
 dispatcher.add_handler(CommandHandler('mount', mount, Filters.user(user_id=users)))
 dispatcher.add_handler(CommandHandler('list', list, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('migrate', migrate, Filters.user(user_id=superusers)))
