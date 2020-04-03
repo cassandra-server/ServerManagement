@@ -9,12 +9,6 @@ abs_path_scripts='path_to_home/.ServerManagement/Files/Scripts/'
 abs_path_resources='path_to_home/.ServerManagement/Files/Resources/'
 case_sensitive=False
 
-#when /proves
-def proves(bot, update, args):
-	saying = " ".join(args)
-	message = bot.send_message(chat_id=update.message.chat_id, text=saying)
-	#message = bot.send_message(chat_id=update.message.chat_id, text="Put your doubious stuff here")
-
 
 #when /awake
 def awake(bot, update):
@@ -72,8 +66,10 @@ def filter(bot, update, args):
 		if len(shows) == 0:
 			bot.send_message(chat_id=update.message.chat_id, text="Nothing found :(")
 		else:
-			shows="- " + "- ".join(shows)
-			bot.send_message(chat_id = update.message.chat_id, text=shows)
+			str=""
+			for show in shows:
+				str = str+show
+			bot.send_message(chat_id = update.message.chat_id, text=str)
 
 
 #when /list
@@ -150,6 +146,53 @@ def superhelp(bot, update):
 							      "/wakeup - Just turns the server on")
 
 
+def parse_machines():
+	file = open(abs_path_resources+'/Authentication/Machines/machines.txt', 'r')
+	machines = []
+	for line in file:
+		machines.append(line.split(" ")[0])
+	file.close()
+	return machines
+
+
+def machines(bot, update, args):
+	machines = parse_machines()
+	if len(args) == 0:
+		list = ""
+		for machine in machines:
+			list = list+machine+"\n"
+		bot.send_message(chat_id=update.message.chat_id, text=list)
+	if len(args) > 0:
+		str = ""
+		if len(args) == 1:
+			for machine in machines:
+				if args[0] in machine:
+					str = str+machine+"\n"
+			bot.send_message(chat_id=update.message.chat_id, text=str)
+		if len(args) == 2:
+			if args[1] == 'swap':
+				file = open(abs_path_resources+'Authentication/Machines/machines.txt', 'r')
+				found = False
+				for line in file:
+					if line.split(" ")[0] == args[0]:
+						filetmp = open(abs_path_resources+'Authentication/SSH/serveruser.txt', 'w+')
+						filetmp.write(line.split(" ")[1])
+						filetmp.close()
+						filetmp = open(abs_path_resources+'Authentication/SSH/serverip.txt', 'w+')
+						filetmp.write(line.split(" ")[2])
+						filetmp.close()
+						filetmp = open(abs_path_resources+'Authentication/SSH/servermac.txt', 'w+')
+						filetmp.write(line.split(" ")[3])
+						filetmp.close()
+						found = True
+						break
+				file.close()
+				if found:
+					bot.send_message(chat_id=update.message.chat_id, text="Machine swapped to "+args[0])
+				if not found:
+					bot.send_message(chat_id=update.message.chat_id, text="No machine named "+args[0])
+
+
 #when /migrate
 def migrate(bot, update):
 	message = bot.send_message(chat_id=update.message.chat_id, text="Heading towards Unformatted")
@@ -167,7 +210,7 @@ def mount(bot, update):
 def reboot(bot, update):
 	message = bot.send_message(chat_id=update.message.chat_id, text='Gonna take a nap')
 	subprocess.call(abs_path_scripts+'StateModification/reboot.sh', shell=True)
-	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Just woken up")
+	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Already woken up")
 
 
 #when /search
@@ -212,7 +255,6 @@ dispatcher.add_handler(CommandHandler('help', help, Filters.user(user_id=users))
 dispatcher.add_handler(CommandHandler('sleep', sleep, Filters.user(user_id=superusers)))
 dispatcher.add_handler(CommandHandler('start', start, Filters.user(user_id=users)))
 dispatcher.add_handler(CommandHandler('wakeup', wakeup, Filters.user(user_id=superusers)))
-dispatcher.add_handler(CommandHandler('proves', proves, Filters.user(user_id=superusers), pass_args=True))
 dispatcher.add_handler(CommandHandler('mount', mount, Filters.user(user_id=users)))
 dispatcher.add_handler(CommandHandler('list', list, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('migrate', migrate, Filters.user(user_id=superusers)))
@@ -221,6 +263,7 @@ dispatcher.add_handler(CommandHandler('reboot', reboot, Filters.user(user_id=sup
 dispatcher.add_handler(CommandHandler('superhelp', superhelp, Filters.user(user_id=superusers)))
 dispatcher.add_handler(CommandHandler('cases', cases, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('search', search, Filters.user(user_id=users), pass_args=True))
+dispatcher.add_handler(CommandHandler('machines', machines, Filters.user(user_id=superusers), pass_args=True))
 
 #start the bot
 updater.start_polling()
