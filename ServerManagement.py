@@ -56,7 +56,7 @@ def download(bot, update, args):
 
 def filter(bot, update, args):
 	if len(args) > 1:
-		shows = ""
+		shows = []
 		keyword = []
 		for k in range(1,len(args)):
 			keyword.append(args[k])
@@ -65,12 +65,12 @@ def filter(bot, update, args):
 		for show in list:
 			if case_sensitive:
 				if keyword in show:
-#					shows.append(show)
-					shows = shows + show
+					shows.append(show)
+#					shows = shows + show
 			if not case_sensitive:
 				if keyword.lower() in show.lower():
-#					shows.append(show)
-					shows = shows + show
+					shows.append(show)
+#					shows = shows + show
 		if len(shows) == 0:
 			bot.send_message(chat_id=update.message.chat_id, text="Nothing found :(")
 		else:
@@ -160,17 +160,46 @@ def parse_machines():
 	for line in file:
 		machines.append(line.split(" ")[0])
 	file.close()
-	print(machines)
+#	print(machines)
 	return machines
 
 
 def machines(bot, update, args):
+	machines = parse_machines()
 	if len(args) == 0:
-		machines = parse_machines()
 		list = ""
 		for machine in machines:
 			list = list+machine+"\n"
 		bot.send_message(chat_id=update.message.chat_id, text=list)
+	if len(args) > 0:
+		str = ""
+		if len(args) == 1:
+			for machine in machines:
+				if args[0] in machine:
+					str = str+machine+"\n"
+			bot.send_message(chat_id=update.message.chat_id, text=str)
+		if len(args) == 2:
+			if args[1] == 'swap':
+				file = open(abs_path_resources+'Authentication/Machines/machines.txt', 'r')
+				found = False
+				for line in file:
+					if line.split(" ")[0] == args[0]:
+						filetmp = open(abs_path_resources+'Authentication/SSH/serveruser.txt', 'w+')
+						filetmp.write(line.split(" ")[1])
+						filetmp.close()
+						filetmp = open(abs_path_resources+'Authentication/SSH/serverip.txt', 'w+')
+						filetmp.write(line.split(" ")[2])
+						filetmp.close()
+						filetmp = open(abs_path_resources+'Authentication/SSH/servermac.txt', 'w+')
+						filetmp.write(line.split(" ")[3])
+						filetmp.close()
+						found = True
+						break
+				file.close()
+				if found:
+					bot.send_message(chat_id=update.message.chat_id, text="Machine swapped to "+args[0])
+				if not found:
+					bot.send_message(chat_id=update.message.chat_id, text="No machine named "+args[0])
 
 
 #when /migrate
