@@ -16,3 +16,18 @@ echo $serveruser > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/se
 echo $serverip > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/serverip.txt
 echo $servermac > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/servermac.txt
 echo "$servername $serveruser $serverip $servermac" > $HOME/.ServerManagement/Files/Resources/Authentication/Machines/machines.txt
+touch /lib/systemd/system/bot.service
+echo "[Unit]" > /lib/systemd/system/bot.service
+echo "Description=A Telegram bot that is capable of controlling many aspects of servers on the same network" >> /lib/systemd/system/bot.service
+echo "After=multi-user.target" >> /lib/systemd/system/bot.service
+echo "" >> /lib/systemd/system/bot.service
+echo "[Service]" >> /lib/systemd/system/bot.service
+echo "User=$USER" >> /lib/systemd/system/bot.service
+echo "Type=idle" >> /lib/systemd/system/bot.service
+echo "ExecStart=/usr/bin/python3 $HOME/.ServerManagement/ServerManagement.py" >> /lib/systemd/system/bot.service
+echo "" >> /lib/systemd/system/bot.service
+echo "[Install]" >> /lib/systemd/system/bot.service
+echo "WantedBy=multi-user.target" >> /lib/systemd/system/bot.service
+systemctl daemon-reload
+systemctl enable bot.service
+systemctl start bot.service
