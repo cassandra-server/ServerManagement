@@ -18,6 +18,7 @@ echo $serveruser > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/se
 echo $serverip > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/serverip.txt
 echo $servermac > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/servermac.txt
 echo "$servername $serveruser $serverip $servermac" > $HOME/.ServerManagement/Files/Resources/Authentication/Machines/machines.txt
+chmod -R +x $HOME/.ServerManagement/Files/Scripts/
 touch /lib/systemd/system/bot.service
 echo "[Unit]" > /lib/systemd/system/bot.service
 echo "Description=A Telegram bot that is capable of controlling many aspects of servers on the same network" >> /lib/systemd/system/bot.service
