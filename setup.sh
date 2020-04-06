@@ -3,6 +3,8 @@ mkdir $HOME/.ServerManagement
 wget https://github.com/MiguelSanchezP/ServerManagement/archive/master.zip -P $HOME/.ServerManagement/
 unzip $HOME/.ServerManagement/master.zip -d $HOME/.ServerManagement/ && mv $HOME/.ServerManagement/ServerManagement-master/* $HOME/.ServerManagement/ && rm -r $HOME/.ServerManagement/ServerManagement-master/
 rm $HOME/.ServerManagement/master.zip
+apt install python3 python3-pip
+pip3 install python-telegram-bot
 read -p "What is the Telegram Bot Token: " token
 echo $token > $HOME/.ServerManagement/Files/Resources/Authentication/Functioning/token.txt
 read -p "Write the userId of the superuser: " userid
@@ -31,3 +33,4 @@ echo "WantedBy=multi-user.target" >> /lib/systemd/system/bot.service
 systemctl daemon-reload
 systemctl enable bot.service
 systemctl start bot.service
+echo "$USER ALL = NOPASSWD: $HOME/.ServerManagement/Files/Scripts/Uninstall/uninstall.sh" >> /etc/sudoers.tmp
