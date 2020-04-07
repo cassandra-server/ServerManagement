@@ -306,7 +306,11 @@ def uninstall_cancel(bot, update):
 
 def uninstall_final(bot, update):
 	#bot.send_message(chat_id=update.message.chat_id, text="Uninstalled")
-	update.message.reply_text("Uninstalled") #, reply_markup=ReplyKeyboardRemove())
+	update.message.reply_text("Uninstalling daemon...")
+	subprocess.call(abs_path_scripts+"Uninstall/daemon.sh", shell=True)
+	update.message.reply_text("Uninstalling directory...")
+	subprocess.call(abs_path_scripts+"Uninstall/directory.sh", shell=True)
+	update.message.reply_text("Uninstalled successfully") #, reply_markup=ReplyKeyboardRemove())
 	return ConversationHandler.END
 
 
