@@ -1,8 +1,11 @@
 #import the libraries
 import telegram
+from telegram import InlineKeyboardButton
+from telegram import InlineKeyboardMarkup
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from telegram.ext import Filters
+from telegram.ext import CallbackQueryHandler
 import subprocess
 import os
 
@@ -161,7 +164,6 @@ def parse_machines():
 	for line in file:
 		machines.append(line.split(" ")[0])
 	file.close()
-#	print(machines)
 	return machines
 
 
@@ -239,10 +241,41 @@ def start(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="I'm active, now you can start asking")
 
 
+def uninstall(bot, update):
+	keyboard = [[InlineKeyboardButton("Continue", callback_data="Continue_uninstallation")], [InlineKeyboardButton("Cancel", callback_data="Cancel_uninstallation")]]
+	reply_markup = InlineKeyboardMarkup(keyboard)
+	bot.send_message(chat_id=update.message.chat_id, text="You're about to uninstall everything in respect to the server manager, make sure this is the option you want to execute before continuing", reply_markup=reply_markup)
+
+
+def uninstall_confirmated(bot, update):
+	bot.send_message(chat_id=update.message.chat_id, text="HOLA")
+	keyboard = [[InlineKeyboardButton("Yes", callback_data='Uninstall_yes')], [InlineKeyboardButton("No", callback_data='Uninstall_no')]]
+	reply_markup = InlineKeyboardMarkup(keyboard)
+	bot.send_message(chat_id=update.message.chat_id, text="Are you sure? ", reply_markup=reply_markup)
+
+
 #when /wakeup
 def wakeup(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="Clock is ringing...")
 	subprocess.call(abs_path_scripts+'StateModification/wakeup.sh', shell=True) #wakeonlan through the script
+
+
+def confirmations(bot, update):
+	query = update.callback_query
+	query.answer()
+	if query.data == "Uninstall_yes":
+		query.edit_message_text(text="Uninstalling...")
+		subprocess.call(abs_path_scripts+'Uninstall/uninstall.sh')
+		#at next reboot --> personalized?
+	if query.data == "Uninstall_no":
+		query.edit_message_text(text="Cancelling")
+	if query.data == "Continue_uninstallation":
+		#query.edit_message_text(text="Continuing")
+		keyboard2 =[[InlineKeyboardButton("Yes", callback_data='Uninstall_yes')], [InlineKeyboardButton("No", callback_data='Uninstall_no')]]
+		reply_markup2 = InlineKeyboardMarkup(keyboard2)
+		bot.send_message(chat_id=update.message.chat_id, text="Are you sure?", reply_markup=reply_markup2)
+	if query.data == "Cancel_uninstallation":
+		query.edit_message_text(text="Cancelled")
 
 
 #initialization of the bot through the token pasted on the file
@@ -275,6 +308,9 @@ dispatcher.add_handler(CommandHandler('superhelp', superhelp, Filters.user(user_
 dispatcher.add_handler(CommandHandler('cases', cases, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('search', search, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('machines', machines, Filters.user(user_id=superusers), pass_args=True))
+dispatcher.add_handler(CommandHandler('uninstall', uninstall, Filters.user(user_id=superusers)))
+
+dispatcher.add_handler(CallbackQueryHandler(confirmations))
 
 #start the bot
 updater.start_polling()
