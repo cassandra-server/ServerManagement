@@ -1,3 +1,3 @@
 #!/bin/bash
-rm /lib/systemd/system/bot.service
-systemctl daemon-reload
+sudo rm /lib/systemd/system/bot.service
+sudo systemctl daemon-reload
