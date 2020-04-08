@@ -260,6 +260,8 @@ def uninstall_cancel(bot, update):
 def uninstall_final(bot, update):
 	update.message.reply_text("Uninstalling daemon...")
 	subprocess.call(abs_path_scripts+"Uninstall/daemon.sh", shell=True)
+	update.message.reply_text("Removing permissions from sudoers...")
+	subprocess.call(abs_path_scripts+"Uninstall/visudo.sh", shell=True)
 	update.message.reply_text("Uninstalling directory...")
 	subprocess.call(abs_path_scripts+"Uninstall/directory.sh", shell=True)
 	update.message.reply_text("Uninstalled successfully")
