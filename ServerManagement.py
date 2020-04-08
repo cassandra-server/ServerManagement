@@ -4,6 +4,7 @@ from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from telegram.ext import Filters
 from telegram.ext import ConversationHandler
+from telegram import ReplyKeyboardRemove
 from telegram import ReplyKeyboardMarkup
 from telegram.ext import MessageHandler
 import subprocess
@@ -253,7 +254,7 @@ def uninstall_confirmation(bot, update):
 
 
 def uninstall_cancel(bot, update):
-	update.message.reply_text("Cancelled")
+	update.message.reply_text("Cancelled", reply_markup=ReplyKeyboardRemove())
 	return ConversationHandler.END
 
 
@@ -264,7 +265,7 @@ def uninstall_final(bot, update):
 	subprocess.call(abs_path_scripts+"Uninstall/visudo.sh", shell=True)
 	update.message.reply_text("Uninstalling directory...")
 	subprocess.call(abs_path_scripts+"Uninstall/directory.sh", shell=True)
-	update.message.reply_text("Uninstalled successfully")
+	update.message.reply_text("Uninstalled successfully", reply_markup=ReplyKeyboardRemove())
 	return ConversationHandler.END
 
 
