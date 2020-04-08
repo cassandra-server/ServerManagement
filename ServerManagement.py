@@ -3,18 +3,16 @@ import telegram
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from telegram.ext import Filters
+from telegram.ext import ConversationHandler
+from telegram import ReplyKeyboardMarkup
+from telegram.ext import MessageHandler
 import subprocess
 import os
 
 abs_path_scripts=os.getenv("HOME")+'/.ServerManagement/Files/Scripts/'
 abs_path_resources=os.getenv("HOME")+'/.ServerManagement/Files/Resources/'
 case_sensitive=False
-
-#when /proves
-def proves(bot, update, args):
-	saying = " ".join(args)
-	message = bot.send_message(chat_id=update.message.chat_id, text=saying)
-	#message = bot.send_message(chat_id=update.message.chat_id, text="Put your doubious stuff here")
+INITIAL_CONFIRMATION, FINAL_CONFIRMATION = range(2)
 
 
 #when /awake
@@ -67,11 +65,9 @@ def filter(bot, update, args):
 			if case_sensitive:
 				if keyword in show:
 					shows.append(show)
-#					shows = shows + show
 			if not case_sensitive:
 				if keyword.lower() in show.lower():
 					shows.append(show)
-#					shows = shows + show
 		if len(shows) == 0:
 			bot.send_message(chat_id=update.message.chat_id, text="Nothing found :(")
 		else:
@@ -161,7 +157,6 @@ def parse_machines():
 	for line in file:
 		machines.append(line.split(" ")[0])
 	file.close()
-#	print(machines)
 	return machines
 
 
@@ -245,6 +240,39 @@ def wakeup(bot, update):
 	subprocess.call(abs_path_scripts+'StateModification/wakeup.sh', shell=True) #wakeonlan through the script
 
 
+def uninstall(bot, update):
+	reply_keyboard = [['Continue'],['Cancel']]
+	update.message.reply_text("You're about to uninstall everything in respect to the server manager, make sure this is the option you want to execute befor continuing", reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+	return INITIAL_CONFIRMATION
+
+
+def uninstall_confirmation(bot, update):
+	reply_keyboard = [['Yes'],['No']]
+	update.message.reply_text("Do you want to uninstall everything?", reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+	return FINAL_CONFIRMATION
+
+
+def uninstall_cancel(bot, update):
+	update.message.reply_text("Cancelled")
+	return ConversationHandler.END
+
+
+def uninstall_final(bot, update):
+	update.message.reply_text("Uninstalling daemon...")
+	subprocess.call(abs_path_scripts+"Uninstall/daemon.sh", shell=True)
+	update.message.reply_text("Uninstalling directory...")
+	subprocess.call(abs_path_scripts+"Uninstall/directory.sh", shell=True)
+	update.message.reply_text("Uninstalled successfully")
+	return ConversationHandler.END
+
+
+confirmations = ConversationHandler(entry_points=[CommandHandler('uninstall', uninstall)],
+	states={
+		INITIAL_CONFIRMATION: [MessageHandler(Filters.regex('Continue'), uninstall_confirmation), MessageHandler(Filters.regex('Cancel'), uninstall_cancel)],
+		FINAL_CONFIRMATION: [MessageHandler(Filters.regex('Yes'), uninstall_final), MessageHandler(Filters.regex('No'), uninstall_cancel)]
+	}, fallbacks=[CommandHandler('cancel', uninstall_cancel)])
+
+
 #initialization of the bot through the token pasted on the file
 TOKEN = open(abs_path_resources+'Authentication/Functioning/token.txt').read().strip()
 #load all the permited ids in the file userIds to a list
@@ -265,7 +293,6 @@ dispatcher.add_handler(CommandHandler('help', help, Filters.user(user_id=users))
 dispatcher.add_handler(CommandHandler('sleep', sleep, Filters.user(user_id=superusers)))
 dispatcher.add_handler(CommandHandler('start', start, Filters.user(user_id=users)))
 dispatcher.add_handler(CommandHandler('wakeup', wakeup, Filters.user(user_id=superusers)))
-dispatcher.add_handler(CommandHandler('proves', proves, Filters.user(user_id=superusers), pass_args=True))
 dispatcher.add_handler(CommandHandler('mount', mount, Filters.user(user_id=users)))
 dispatcher.add_handler(CommandHandler('list', list, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('migrate', migrate, Filters.user(user_id=superusers)))
@@ -276,5 +303,6 @@ dispatcher.add_handler(CommandHandler('cases', cases, Filters.user(user_id=users
 dispatcher.add_handler(CommandHandler('search', search, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('machines', machines, Filters.user(user_id=superusers), pass_args=True))
 
+dispatcher.add_handler(confirmations)
 #start the bot
 updater.start_polling()
