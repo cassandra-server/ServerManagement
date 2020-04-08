@@ -35,3 +35,4 @@ systemctl daemon-reload
 systemctl enable bot.service
 systemctl start bot.service
 echo "$USER ALL = NOPASSWD: $HOME/.ServerManagement/Files/Scripts/Uninstall/daemon.sh" >> /etc/sudoers.tmp
+echo "$USER ALL = NOPASSWD: $HOME/.ServerManagement/Files/Scripts/Uninstall/visudo.sh" >> /etc/sudoers.tmp
