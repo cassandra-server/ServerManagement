@@ -1,14 +1,10 @@
 #import the libraries
 import telegram
-#from telegram import InlineKeyboardButton
-#from telegram import InlineKeyboardMarkup
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from telegram.ext import Filters
-#from telegram.ext import CallbackQueryHandler
 from telegram.ext import ConversationHandler
 from telegram import ReplyKeyboardMarkup
-from telegram import ReplyKeyboardRemove
 from telegram.ext import MessageHandler
 import subprocess
 import os
@@ -17,12 +13,6 @@ abs_path_scripts=os.getenv("HOME")+'/.ServerManagement/Files/Scripts/'
 abs_path_resources=os.getenv("HOME")+'/.ServerManagement/Files/Resources/'
 case_sensitive=False
 INITIAL_CONFIRMATION, FINAL_CONFIRMATION = range(2)
-
-#when /proves
-def proves(bot, update, args):
-	saying = " ".join(args)
-	message = bot.send_message(chat_id=update.message.chat_id, text=saying)
-	#message = bot.send_message(chat_id=update.message.chat_id, text="Put your doubious stuff here")
 
 
 #when /awake
@@ -75,11 +65,9 @@ def filter(bot, update, args):
 			if case_sensitive:
 				if keyword in show:
 					shows.append(show)
-#					shows = shows + show
 			if not case_sensitive:
 				if keyword.lower() in show.lower():
 					shows.append(show)
-#					shows = shows + show
 		if len(shows) == 0:
 			bot.send_message(chat_id=update.message.chat_id, text="Nothing found :(")
 		else:
@@ -245,72 +233,36 @@ def sleep(bot, update):
 def start(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="I'm active, now you can start asking")
 
-"""
-def uninstall(bot, update):
-	keyboard = [[InlineKeyboardButton("Continue", callback_data="Continue_uninstallation")], [InlineKeyboardButton("Cancel", callback_data="Cancel_uninstallation")]]
-	reply_markup = InlineKeyboardMarkup(keyboard)
-	bot.send_message(chat_id=update.message.chat_id, text="You're about to uninstall everything in respect to the server manager, make sure this is the option you want to execute before continuing", reply_markup=reply_markup)
-
-
-def uninstall_confirmated(bot, update):
-	bot.send_message(chat_id=update.message.chat_id, text="HOLA")
-	keyboard = [[InlineKeyboardButton("Yes", callback_data='Uninstall_yes')], [InlineKeyboardButton("No", callback_data='Uninstall_no')]]
-	reply_markup = InlineKeyboardMarkup(keyboard)
-	bot.send_message(chat_id=update.message.chat_id, text="Are you sure? ", reply_markup=reply_markup)
-"""
 
 #when /wakeup
 def wakeup(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="Clock is ringing...")
 	subprocess.call(abs_path_scripts+'StateModification/wakeup.sh', shell=True) #wakeonlan through the script
 
-"""
-def confirmations(bot, update):
-	query = update.callback_query
-	query.answer()
-	if query.data == "Uninstall_yes":
-		query.edit_message_text(text="Uninstalling...")
-		subprocess.call(abs_path_scripts+'Uninstall/uninstall.sh')
-		#at next reboot --> personalized?
-	if query.data == "Uninstall_no":
-		query.edit_message_text(text="Cancelling")
-	if query.data == "Continue_uninstallation":
-		#query.edit_message_text(text="Continuing")
-		keyboard2 =[[InlineKeyboardButton("Yes", callback_data='Uninstall_yes')], [InlineKeyboardButton("No", callback_data='Uninstall_no')]]
-		reply_markup2 = InlineKeyboardMarkup(keyboard2)
-		bot.send_message(chat_id=update.message.chat_id, text="Are you sure?", reply_markup=reply_markup2)
-	if query.data == "Cancel_uninstallation":
-		query.edit_message_text(text="Cancelled")
-"""
 
 def uninstall(bot, update):
-	#bot.send_message(chat_id=update.message.chat_id, text="You're about to uninstall everything related to the server management bot, are you sure you want to continue?")
 	reply_keyboard = [['Continue'],['Cancel']]
-	#bot.send_message(chat_id=update.message.chat_id, text="You're about to uninstall everything, are you sure you want to continue? ", reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 	update.message.reply_text("You're about to uninstall everything in respect to the server manager, make sure this is the option you want to execute befor continuing", reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 	return INITIAL_CONFIRMATION
 
 
 def uninstall_confirmation(bot, update):
 	reply_keyboard = [['Yes'],['No']]
-	#bot.send_message(chat_id=update.message.chat_id, text="Do you eant to uninstall everything?", reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 	update.message.reply_text("Do you want to uninstall everything?", reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 	return FINAL_CONFIRMATION
 
 
 def uninstall_cancel(bot, update):
-	#bot.send_message(chat_id=update.message.chat_id, text="Cancelled")
-	update.message.reply_text("Cancelled") #, reply_markup=ReplyKeyboardRemove())
+	update.message.reply_text("Cancelled")
 	return ConversationHandler.END
 
 
 def uninstall_final(bot, update):
-	#bot.send_message(chat_id=update.message.chat_id, text="Uninstalled")
 	update.message.reply_text("Uninstalling daemon...")
 	subprocess.call(abs_path_scripts+"Uninstall/daemon.sh", shell=True)
 	update.message.reply_text("Uninstalling directory...")
 	subprocess.call(abs_path_scripts+"Uninstall/directory.sh", shell=True)
-	update.message.reply_text("Uninstalled successfully") #, reply_markup=ReplyKeyboardRemove())
+	update.message.reply_text("Uninstalled successfully")
 	return ConversationHandler.END
 
 
@@ -341,7 +293,6 @@ dispatcher.add_handler(CommandHandler('help', help, Filters.user(user_id=users))
 dispatcher.add_handler(CommandHandler('sleep', sleep, Filters.user(user_id=superusers)))
 dispatcher.add_handler(CommandHandler('start', start, Filters.user(user_id=users)))
 dispatcher.add_handler(CommandHandler('wakeup', wakeup, Filters.user(user_id=superusers)))
-dispatcher.add_handler(CommandHandler('proves', proves, Filters.user(user_id=superusers), pass_args=True))
 dispatcher.add_handler(CommandHandler('mount', mount, Filters.user(user_id=users)))
 dispatcher.add_handler(CommandHandler('list', list, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('migrate', migrate, Filters.user(user_id=superusers)))
@@ -351,9 +302,7 @@ dispatcher.add_handler(CommandHandler('superhelp', superhelp, Filters.user(user_
 dispatcher.add_handler(CommandHandler('cases', cases, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('search', search, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('machines', machines, Filters.user(user_id=superusers), pass_args=True))
-#dispatcher.add_handler(CommandHandler('uninstall', uninstall, Filters.user(user_id=superusers)))
 
-#dispatcher.add_handler(CallbackQueryHandler(confirmations))
 dispatcher.add_handler(confirmations)
 #start the bot
 updater.start_polling()
