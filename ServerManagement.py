@@ -9,11 +9,18 @@ from telegram import ReplyKeyboardMarkup
 from telegram.ext import MessageHandler
 import subprocess
 import os
+import time
 
 abs_path_scripts=os.getenv("HOME")+'/.ServerManagement/Files/Scripts/'
 abs_path_resources=os.getenv("HOME")+'/.ServerManagement/Files/Resources/'
 case_sensitive=False
+show_time=True
 INITIAL_CONFIRMATION, FINAL_CONFIRMATION = range(2)
+
+
+def display_time(bot, update, timei, timef):
+	if show_time:
+		bot.send_message(chat_id=update.message.chat_id, text="Process executed in: " + str(round(timef-timei)) + " seconds")
 
 
 #when /awake
@@ -121,9 +128,12 @@ def ls(bot, update, args, recursive):
 #when /getup
 def getup(bot, update):
 	message = bot.send_message(chat_id=update.message.chat_id, text="Can't I have 5 more mins... (Be a little patient)")
+	timei = time.time()
 	subprocess.call(abs_path_scripts+'StateModification/getup.sh', shell=True) #wakeonlan + ping until success through the script
+	timef = time.time()
 	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Ready to rock!") #reply to the 'time to get up' message
-
+	if show_time:
+		display_time(bot, update, timei, timef)
 
 #when /help
 def help(bot, update):
@@ -215,8 +225,11 @@ def mount(bot, update):
 #when /reboot
 def reboot(bot, update):
 	message = bot.send_message(chat_id=update.message.chat_id, text='Gonna take a nap')
+	timei=time.time()
 	subprocess.call(abs_path_scripts+'StateModification/reboot.sh', shell=True)
+	timef=time.time()
 	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Already woken up")
+	display_time(bot, update, timei, timef)
 
 
 #when /search
