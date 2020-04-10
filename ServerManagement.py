@@ -54,11 +54,15 @@ def cases(bot, update, args):
 
 #when /download
 def download(bot, update, args):
+	timei = time.time()
 	file = open(abs_path_resources+'Args/magnetlink.txt', "w+")
 	file.write(args[0])
 	file.close()
 	subprocess.call(abs_path_scripts+'SSH/download.sh', shell=True)
 	bot.send_message(chat_id=update.message.chat_id, text="Download link managed correctly")
+	timef = time.time()
+	if show_time:
+		display_time(bot, update, timei, timef)
 
 
 def filter(bot, update, args):
