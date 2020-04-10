@@ -98,6 +98,7 @@ def split_string(string):
 
 
 def ls(bot, update, args, recursive):
+	timei = time.time()
 	file = open(abs_path_resources+'Args/dir.txt', 'w+')
 	if case_sensitive:
 		file.write(args[0])
@@ -123,6 +124,9 @@ def ls(bot, update, args, recursive):
 			bot.send_message(chat_id=update.message.chat_id, text=list)
 	else:
 		filter(bot, update, args)
+	timef = time.time()
+	if show_time:
+		display_time(bot, update, timei, timef)
 
 
 #when /getup
@@ -172,6 +176,7 @@ def parse_machines():
 
 
 def machines(bot, update, args):
+	timei = time.time()
 	machines = parse_machines()
 	if len(args) == 0:
 		list = ""
@@ -207,13 +212,20 @@ def machines(bot, update, args):
 					bot.send_message(chat_id=update.message.chat_id, text="Machine swapped to "+args[0])
 				if not found:
 					bot.send_message(chat_id=update.message.chat_id, text="No machine named "+args[0])
+	timef=time.time()
+	if show_time:
+		display_time(bot, update, timei, timef)
 
 
 #when /migrate
 def migrate(bot, update):
+	timei = time.time()
 	message = bot.send_message(chat_id=update.message.chat_id, text="Heading towards Unformatted")
 	subprocess.call(abs_path_scripts+'SSH/migrate.sh', shell=True)
 	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Destination reached")
+	timef = time.time()
+	if show_time:
+		display_time(bot, update, timei, timef)
 
 
 #when /mount
