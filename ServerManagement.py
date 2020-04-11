@@ -9,11 +9,18 @@ from telegram import ReplyKeyboardMarkup
 from telegram.ext import MessageHandler
 import subprocess
 import os
+import time
 
 abs_path_scripts=os.getenv("HOME")+'/.ServerManagement/Files/Scripts/'
 abs_path_resources=os.getenv("HOME")+'/.ServerManagement/Files/Resources/'
 case_sensitive=False
+show_time=True
 INITIAL_CONFIRMATION, FINAL_CONFIRMATION = range(2)
+
+
+def display_time(bot, update, timei, timef):
+	if show_time:
+		bot.send_message(chat_id=update.message.chat_id, text="Process executed in: " + str(round(timef-timei)) + " seconds")
 
 
 #when /awake
@@ -47,11 +54,15 @@ def cases(bot, update, args):
 
 #when /download
 def download(bot, update, args):
+	timei = time.time()
 	file = open(abs_path_resources+'Args/magnetlink.txt', "w+")
 	file.write(args[0])
 	file.close()
 	subprocess.call(abs_path_scripts+'SSH/download.sh', shell=True)
 	bot.send_message(chat_id=update.message.chat_id, text="Download link managed correctly")
+	timef = time.time()
+	if show_time:
+		display_time(bot, update, timei, timef)
 
 
 def filter(bot, update, args):
@@ -91,6 +102,7 @@ def split_string(string):
 
 
 def ls(bot, update, args, recursive):
+	timei = time.time()
 	file = open(abs_path_resources+'Args/dir.txt', 'w+')
 	if case_sensitive:
 		file.write(args[0])
@@ -116,14 +128,20 @@ def ls(bot, update, args, recursive):
 			bot.send_message(chat_id=update.message.chat_id, text=list)
 	else:
 		filter(bot, update, args)
+	timef = time.time()
+	if show_time:
+		display_time(bot, update, timei, timef)
 
 
 #when /getup
 def getup(bot, update):
 	message = bot.send_message(chat_id=update.message.chat_id, text="Can't I have 5 more mins... (Be a little patient)")
+	timei = time.time()
 	subprocess.call(abs_path_scripts+'StateModification/getup.sh', shell=True) #wakeonlan + ping until success through the script
+	timef = time.time()
 	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Ready to rock!") #reply to the 'time to get up' message
-
+	if show_time:
+		display_time(bot, update, timei, timef)
 
 #when /help
 def help(bot, update):
@@ -162,6 +180,7 @@ def parse_machines():
 
 
 def machines(bot, update, args):
+	timei = time.time()
 	machines = parse_machines()
 	if len(args) == 0:
 		list = ""
@@ -197,13 +216,20 @@ def machines(bot, update, args):
 					bot.send_message(chat_id=update.message.chat_id, text="Machine swapped to "+args[0])
 				if not found:
 					bot.send_message(chat_id=update.message.chat_id, text="No machine named "+args[0])
+	timef=time.time()
+	if show_time:
+		display_time(bot, update, timei, timef)
 
 
 #when /migrate
 def migrate(bot, update):
+	timei = time.time()
 	message = bot.send_message(chat_id=update.message.chat_id, text="Heading towards Unformatted")
 	subprocess.call(abs_path_scripts+'SSH/migrate.sh', shell=True)
 	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Destination reached")
+	timef = time.time()
+	if show_time:
+		display_time(bot, update, timei, timef)
 
 
 #when /mount
@@ -215,8 +241,11 @@ def mount(bot, update):
 #when /reboot
 def reboot(bot, update):
 	message = bot.send_message(chat_id=update.message.chat_id, text='Gonna take a nap')
+	timei=time.time()
 	subprocess.call(abs_path_scripts+'StateModification/reboot.sh', shell=True)
+	timef=time.time()
 	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Already woken up")
+	display_time(bot, update, timei, timef)
 
 
 #when /search
@@ -233,6 +262,23 @@ def sleep(bot, update):
 #when /start
 def start(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="I'm active, now you can start asking")
+
+
+def times(bot, update, args):
+	global show_time
+	if args[0].lower() == 'on':
+		show_time = True
+		bot.send_message(chat_id=update.message.chat_id, text="Execution times are now on")
+	elif args[0].lower() == 'off':
+		show_time = False
+		bot.send_message(chat_id=update.message.chat_id, text="Execution times are now off")
+	elif args[0].lower() == 'status':
+		if show_time:
+			bot.send_message(chat_id=update.message.chat_id, text="Execution times are on")
+		else:
+			bot.send_message(chat_id=update.message.chat_id, text="Execution times are off")
+	else:
+		bot.send_message(chat_id=update.message.chat_id, text="Please write On/Off/Status")
 
 
 #when /wakeup
@@ -305,6 +351,7 @@ dispatcher.add_handler(CommandHandler('superhelp', superhelp, Filters.user(user_
 dispatcher.add_handler(CommandHandler('cases', cases, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('search', search, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('machines', machines, Filters.user(user_id=superusers), pass_args=True))
+dispatcher.add_handler(CommandHandler('times', times, Filters.user(user_id=users), pass_args=True))
 
 dispatcher.add_handler(confirmations)
 #start the bot
