@@ -264,6 +264,23 @@ def start(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="I'm active, now you can start asking")
 
 
+def times(bot, update, args):
+	global show_time
+	if args[0].lower() == 'on':
+		show_time = True
+		bot.send_message(chat_id=update.message.chat_id, text="Execution times are now on")
+	elif args[0].lower() == 'off':
+		show_time = False
+		bot.send_message(chat_id=update.message.chat_id, text="Execution times are now off")
+	elif args[0].lower() == 'status':
+		if show_time:
+			bot.send_message(chat_id=update.message.chat_id, text="Execution times are on")
+		else:
+			bot.send_message(chat_id=update.message.chat_id, text="Execution times are off")
+	else:
+		bot.send_message(chat_id=update.message.chat_id, text="Please write On/Off/Status")
+
+
 #when /wakeup
 def wakeup(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="Clock is ringing...")
@@ -334,6 +351,7 @@ dispatcher.add_handler(CommandHandler('superhelp', superhelp, Filters.user(user_
 dispatcher.add_handler(CommandHandler('cases', cases, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('search', search, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('machines', machines, Filters.user(user_id=superusers), pass_args=True))
+dispatcher.add_handler(CommandHandler('times', times, Filters.user(user_id=users), pass_args=True))
 
 dispatcher.add_handler(confirmations)
 #start the bot
