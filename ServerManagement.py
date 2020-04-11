@@ -95,10 +95,18 @@ def list (bot, update, args):
 
 
 def split_string(string):
-	args = []
-	for k in range(0, len(string), 4096):
-		args.append(string[0+k:4096+k])
-	return args
+	substrings=string.split("\n")
+	num = int(len(string)/4096)+1
+	substringsdef = ['']*num
+	substringsdef[0] = ""
+	i = 0
+	for substring in substrings:
+		if len(substringsdef[i])+len(substring) < 4096:
+			substringsdef[i] = substringsdef[i] + substring + "\n"
+		else:
+			i = i+1;
+			substringsdef[i] = substringsdef[i] + substring + "\n"
+	return substringsdef
 
 
 def ls(bot, update, args, recursive):
