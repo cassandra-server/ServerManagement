@@ -214,6 +214,9 @@ def machines(bot, update, args):
 						filetmp = open(abs_path_resources+'Authentication/SSH/servermac.txt', 'w+')
 						filetmp.write(line.split(" ")[3])
 						filetmp.close()
+						filetmp = open(abs_path_resources+'Authentication/SSH/serverport.txt', 'w+')
+						filetmp.write(line.split(" ")[4])
+						filetmp.close()
 						found = True
 						break
 				file.close()
