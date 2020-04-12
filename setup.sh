@@ -14,10 +14,15 @@ read -p "Write the name to recognize the server: " servername
 read -p "Write the username to access the machine: " serveruser
 read -p "Write the ip address of the server: " serverip
 read -p "Write the mac address of the server: " servermac
+read -p "Write the OpenSSH port of the server (default=22): " serverport
+if [-z "$serverport"]; then
+	$serverport=22
+fi
 echo $serveruser > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/serveruser.txt
 echo $serverip > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/serverip.txt
 echo $servermac > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/servermac.txt
-echo "$servername $serveruser $serverip $servermac" > $HOME/.ServerManagement/Files/Resources/Authentication/Machines/machines.txt
+echo $serverport > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/serverport.txt
+echo "$servername $serveruser $serverip $servermac $serverport" > $HOME/.ServerManagement/Files/Resources/Authentication/Machines/machines.txt
 chmod -R +x $HOME/.ServerManagement/Files/Scripts/
 touch /lib/systemd/system/bot.service
 echo "[Unit]" > /lib/systemd/system/bot.service
