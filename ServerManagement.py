@@ -222,8 +222,22 @@ def machines(bot, update, args):
 				file.close()
 				if found:
 					bot.send_message(chat_id=update.message.chat_id, text="Machine swapped to "+args[0])
-				if not found:
-					bot.send_message(chat_id=update.message.chat_id, text="No machine named "+args[0])
+				else:
+					bot.send_message(chat_id=update.message.chat_id, text="No machine found with name "+args[0])
+			if args[1] == 'info':
+				file = open(abs_path_resources+'Authentication/Machines/machines.txt', 'r')
+				found = False
+				str = "Name: " + args[0] + "\n"
+				for line in file:
+					if line.split(" ")[0] == args[0]:
+						str = str + "Username: " + line.split(" ")[1] + "\nIP Address: " + line.split(" ")[2] + "\nMAC Address: " + line.split(" ")[3] + "\nPort: " + line.split(" ")[4]
+						found = True
+						break
+				file.close()
+				if found:
+					bot.send_message(chat_id=update.message.chat_id, text=str)
+				else:
+					bot.send_message(chat_id=update.message.chat_id, text="No machine found with name " + args[0])
 	timef=time.time()
 	display_time(bot, update, timei, timef)
 
@@ -339,6 +353,13 @@ with open(abs_path_resources+'Authentication/Functioning/superuserIds.txt') as f
 
 updater = Updater(token=TOKEN)
 dispatcher = updater.dispatcher
+file = open(abs_path_resources+'Authentication/Machines/Users/users.txt', 'r')
+username = []
+id = []
+for line in file:
+	username.append(line.split(" ")[0])
+	id.append(line.split(" ")[1])
+usernames, ids = username, id
 
 
 #assign each command to its function
