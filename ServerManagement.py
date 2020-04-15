@@ -16,6 +16,8 @@ abs_path_resources=os.getenv("HOME")+'/.ServerManagement/Files/Resources/'
 case_sensitive=False
 show_time=True
 INITIAL_CONFIRMATION, FINAL_CONFIRMATION = range(2)
+operating_machine = ""
+operating_username = ""
 
 
 def display_time(bot, update, timei, timef):
@@ -173,6 +175,7 @@ def superhelp(bot, update):
 							      "/start - Initializes the bot\n"+
 							      "/superhelp - Displays this message of help\n"+
 							      "/wakeup - Just turns the server on")
+	bot.send_message(chat_id=update.message.chat_id, text=str(update.message.from_user.id))
 
 
 def parse_machines():
@@ -279,9 +282,29 @@ def sleep(bot, update):
 	subprocess.call(abs_path_scripts+'StateModification/sleep.sh', shell=True) #shutdown -P 0 through the script
 
 
+def check_permissions(bot, update, args):
+	file = open(abs_path_resources+'Authentication/Machines/machines.txt', 'r')
+	machines = []
+	for line in file:
+		users = line.split(' ')[5].split(',')
+		if args[0] in users:
+			machines.append(line.split(' ')[0])
+	print (machines)
+	return machines
+
+
 #when /start
 def start(bot, update):
-	bot.send_message(chat_id=update.message.chat_id, text="I'm active, now you can start asking")
+	global operating_machine
+	global operating_username
+	operating_username=str(update.message.from_user.id)
+	machines_user = check_permissions(current_username)
+	a = []
+	for index in machines_user:
+		a.append([index])
+	reply_keyboard = a
+	choice = update.message.reply_text("Please get one of the machines that's available for you", reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+	return choice
 
 
 def times(bot, update, args):
@@ -357,8 +380,8 @@ file = open(abs_path_resources+'Authentication/Machines/Users/users.txt', 'r')
 username = []
 id = []
 for line in file:
-	username.append(line.split(" ")[0])
-	id.append(line.split(" ")[1])
+	username.append(line.split(":")[0])
+	id.append(line.split(":")[1])
 usernames, ids = username, id
 
 
@@ -379,6 +402,7 @@ dispatcher.add_handler(CommandHandler('cases', cases, Filters.user(user_id=users
 dispatcher.add_handler(CommandHandler('search', search, Filters.user(user_id=users), pass_args=True))
 dispatcher.add_handler(CommandHandler('machines', machines, Filters.user(user_id=superusers), pass_args=True))
 dispatcher.add_handler(CommandHandler('times', times, Filters.user(user_id=users), pass_args=True))
+dispatcher.add_handler(CommandHandler('check', check_permissions, Filters.user(user_id=superusers), pass_args=True))
 
 dispatcher.add_handler(confirmations)
 #start the bot
