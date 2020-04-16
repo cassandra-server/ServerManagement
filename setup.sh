@@ -7,7 +7,7 @@ apt install python3 python3-pip
 pip3 install python-telegram-bot
 read -p "What is the Telegram Bot Token: " token
 echo $token > $HOME/.ServerManagement/Files/Resources/Authentication/Functioning/token.txt
-read -p "Write the userId of the superuser: " userid
+read -p "Write the userId of the superuser (access to all functions): " userid
 echo $userid > $HOME/.ServerManagement/Files/Resources/Authentication/Functioning/superuserIds.txt
 echo $userid > $HOME/.ServerManagement/Files/Resources/Authentication/Functioning/userIds.txt
 read -p "Write the name to recognize the server: " servername
@@ -22,7 +22,7 @@ echo $serveruser > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/se
 echo $serverip > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/serverip.txt
 echo $servermac > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/servermac.txt
 echo $serverport > $HOME/.ServerManagement/Files/Resources/Authentication/SSH/serverport.txt
-echo "$servername $serveruser $serverip $servermac $serverport" > $HOME/.ServerManagement/Files/Resources/Authentication/Machines/machines.txt
+echo "$servername $serveruser $serverip $servermac $serverport $userid" > $HOME/.ServerManagement/Files/Resources/Authentication/Machines/machines.txt
 chmod -R +x $HOME/.ServerManagement/Files/Scripts/
 touch /lib/systemd/system/bot.service
 echo "[Unit]" > /lib/systemd/system/bot.service
