@@ -18,6 +18,7 @@ show_time=True
 INITIAL_CONFIRMATION, FINAL_CONFIRMATION = range(2)
 operating_machine = ""
 operating_username = ""
+SWAP_MACHINE = range(1)
 
 
 def display_time(bot, update, timei, timef):
@@ -150,6 +151,7 @@ def getup(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=message.message_id, text="Ready to rock!") #reply to the 'time to get up' message
 	display_time(bot, update, timei, timef)
 
+
 #when /help
 def help(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="/awake - Check the status of the server\n"+
@@ -187,6 +189,33 @@ def parse_machines():
 	return machines
 
 
+def establish_connection(bot, update, machine):
+	file = open(abs_path_resources+'Authentication/Machines/machines.txt', 'r')
+	found = False
+	for line in file:
+		if line.split(" ")[0] == machine:
+			filetmp = open(abs_path_resources+'Authentication/SSH/serveruser.txt', 'w+')
+			filetmp.write(line.split(" ")[1])
+			filetmp.close()
+			filetmp = open(abs_path_resources+'Authentication/SSH/serverip.txt', 'w+')
+			filetmp.write(line.split(" ")[2])
+			filetmp.close()
+			filetmp = open(abs_path_resources+'Authentication/SSH/servermac.txt', 'w+')
+			filetmp.write(line.split(" ")[3])
+			filetmp.close()
+			filetmp = open(abs_path_resources+'Authentication/SSH/serverport.txt', 'w+')
+			filetmp.write(line.split(" ")[4])
+			filetmp.close()
+			found = True
+			break
+	file.close()
+	if found:
+		print('connected')
+		bot.send_message(chat_id=update.message.chat_id, text="Connection established to "+args[0])
+	else:
+		bot.send_message(chat_id=update.message.chat_id, text="Cannot connect to "+args[0]+ ", no machine with this given name")
+
+
 def machines(bot, update, args):
 	timei = time.time()
 	machines = parse_machines()
@@ -204,29 +233,7 @@ def machines(bot, update, args):
 			bot.send_message(chat_id=update.message.chat_id, text=str)
 		if len(args) == 2:
 			if args[1] == 'swap':
-				file = open(abs_path_resources+'Authentication/Machines/machines.txt', 'r')
-				found = False
-				for line in file:
-					if line.split(" ")[0] == args[0]:
-						filetmp = open(abs_path_resources+'Authentication/SSH/serveruser.txt', 'w+')
-						filetmp.write(line.split(" ")[1])
-						filetmp.close()
-						filetmp = open(abs_path_resources+'Authentication/SSH/serverip.txt', 'w+')
-						filetmp.write(line.split(" ")[2])
-						filetmp.close()
-						filetmp = open(abs_path_resources+'Authentication/SSH/servermac.txt', 'w+')
-						filetmp.write(line.split(" ")[3])
-						filetmp.close()
-						filetmp = open(abs_path_resources+'Authentication/SSH/serverport.txt', 'w+')
-						filetmp.write(line.split(" ")[4])
-						filetmp.close()
-						found = True
-						break
-				file.close()
-				if found:
-					bot.send_message(chat_id=update.message.chat_id, text="Machine swapped to "+args[0])
-				else:
-					bot.send_message(chat_id=update.message.chat_id, text="No machine found with name "+args[0])
+				establish_connection(bot, update, args[0])
 			if args[1] == 'info':
 				file = open(abs_path_resources+'Authentication/Machines/machines.txt', 'r')
 				found = False
@@ -282,29 +289,56 @@ def sleep(bot, update):
 	subprocess.call(abs_path_scripts+'StateModification/sleep.sh', shell=True) #shutdown -P 0 through the script
 
 
-def check_permissions(bot, update, args):
+def check_permissions(bot, update, username):
 	file = open(abs_path_resources+'Authentication/Machines/machines.txt', 'r')
+	print ("inside4")
 	machines = []
+	print ("inside5")
 	for line in file:
+		print ("inside6")
 		users = line.split(' ')[5].split(',')
-		if args[0] in users:
+		print ("inside7")
+		if username in users:
+			print ("inside8")
 			machines.append(line.split(' ')[0])
+			print ("inside9")
+	file.close()
 	print (machines)
+	print ("inside10")
 	return machines
 
 
-#when /start
-def start(bot, update):
+def getdata(bot, update):
+	print ('getdata')
+	print (update.message.text)
+	ConversationHandler.END
+
+
+def abort(bot, update):
+	ConversationHandler.END
+
+
+def swapping(bot, update):
+	print("inside")
 	global operating_machine
 	global operating_username
+	print ("inside2")
 	operating_username=str(update.message.from_user.id)
-	machines_user = check_permissions(current_username)
+	print ("inside3")
+	machines_user = check_permissions(bot, update, operating_username)
+	print ("inside2")
 	a = []
 	for index in machines_user:
 		a.append([index])
 	reply_keyboard = a
 	choice = update.message.reply_text("Please get one of the machines that's available for you", reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
-	return choice
+	return SWAP_MACHINE
+
+
+def start (bot, update):
+	print ('start')
+	swapping(bot, update)
+#	getdata(bot, update)
 
 
 def times(bot, update, args):
@@ -361,8 +395,14 @@ def uninstall_final(bot, update):
 confirmations = ConversationHandler(entry_points=[CommandHandler('uninstall', uninstall)],
 	states={
 		INITIAL_CONFIRMATION: [MessageHandler(Filters.regex('Continue'), uninstall_confirmation), MessageHandler(Filters.regex('Cancel'), uninstall_cancel)],
-		FINAL_CONFIRMATION: [MessageHandler(Filters.regex('Yes'), uninstall_final), MessageHandler(Filters.regex('No'), uninstall_cancel)]
+		FINAL_CONFIRMATION: [MessageHandler(Filters.regex('Cancel'), uninstall_final), MessageHandler(Filters.regex('No'), uninstall_cancel)]
 	}, fallbacks=[CommandHandler('cancel', uninstall_cancel)])
+
+
+initialization = ConversationHandler(entry_points=[swapping],
+	states={
+		SWAP_MACHINE: [MessageHandler(Filters.regex('elliot'), getdata)]
+	}, fallbacks=[CommandHandler('cancel', abort)])
 
 
 #initialization of the bot through the token pasted on the file
@@ -405,5 +445,6 @@ dispatcher.add_handler(CommandHandler('times', times, Filters.user(user_id=users
 dispatcher.add_handler(CommandHandler('check', check_permissions, Filters.user(user_id=superusers), pass_args=True))
 
 dispatcher.add_handler(confirmations)
+dispatcher.add_handler(initialization)
 #start the bot
 updater.start_polling()
